@@ -50,6 +50,8 @@ EOF
       end
 
       def on_failure_mail_exception(exception, *args)
+        return if @exception_mail_already_sent
+
         opts = Resque::Plugins::ExceptionMailer.defaults
         [:host, :port, :helo, :username, :password, :subject, :body, :from, :to].each do |sym|
           value = instance_variable_get :"@exception_mail_#{sym}"
@@ -80,6 +82,8 @@ EOF
 
           smtp.send_message msg, opts[:from], opts[:to]
         end
+
+        @exception_mail_already_sent = true
       rescue
       end
     end
